@@ -5,6 +5,7 @@ import yaml
 from termcolor import colored as c
 from os.path import expanduser
 import sys
+import argparse
 
 CONFIG = expanduser('~') + '/.sch.yaml'
 
@@ -12,14 +13,11 @@ class SCH:
     cfg = {}
     def __init__(self):
         # TODO: Handle config which exists, but lacks necessary fields
-        while True:
-            # TODO: Make this more efficient
-            with open(CONFIG, 'r+') as f:
-                self.cfg = yaml.load(f.read())
-            if self.cfg:
-                break
-            else:
-                self.genconfig()
+        # TODO: Make this more efficient
+        with open(CONFIG, 'r+') as f:
+            self.cfg = yaml.load(f.read())
+        if not self.cfg:
+            print(c('No configuration detected. Run sch config to generate config file.', 'red'))
 
         # TODO: Unsure of naming of `api`
         self.api = schoolopy.Schoology(self.cfg['key'], self.cfg['secret'])
@@ -27,7 +25,7 @@ class SCH:
     def genconfig(self):
         from getpass import getpass
 
-        print(c('Generating configuration -- probably first run.', 'green'))
+        print(c('Generating configuration for first run.', 'green'))
         self.cfg = {}
         self.cfg['key'] = input('API key: ')
         self.cfg['secret'] = getpass('API secret: ')
@@ -49,9 +47,20 @@ class SCH:
         for user,update in zip(users,updates):
             print(c(user.name_display, 'red'), end='')
             print(' / ' + update.body[:40].replace('\r\n', ' ').replace('\n', ' ') + '... / ', end='')
-            print(c('%d likes' % update.likes, 'yellow'))
+            print(c('%dL' % update.likes, 'yellow'))
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Schoology in the terminal.')
+    parser.add_argument('command', type=str, nargs='?', help='What you want to do (home, config).')
+
+    args = parser.parse_args()
+
     sch = SCH()
 
-    sch.home()
+
+    if not args.command or args.command == 'home':
+        sch.home()
+    elif args.command.startswith('config'):
+        sch.genconfig()
+    else:
+        print('Unknown command %s.' % args.command)
