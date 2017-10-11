@@ -8,7 +8,7 @@ import sys
 import re
 from datetime.datetime import timestamp
 
-CONFIG = expanduser('~') + '/.sch.yaml'
+CONFIG = expanduser('~') + '/.sc.yaml'
 
 cfg = {}
 # TODO: Handle config which exists, but lacks necessary fields
