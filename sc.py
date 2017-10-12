@@ -25,11 +25,11 @@ if not cfg:
     cfg = {}
     cfg['key'] = input('API key: ')
     cfg['secret'] = getpass('API secret: ')
+    # TODO: Get this automatically
+    cfg['me'] = input('User ID: ')
     with open(CONFIG, 'w+') as f:
         yaml.dump(cfg, f)
 
-
-# TODO: Unsure of naming of `api`
 api = schoolopy.Schoology(cfg.get('key'), cfg.get('secret'))
 
 def date(timestamp):
@@ -49,10 +49,11 @@ def display(data):
             sys.stdout.write('\r')
             for user, update in zip(users, data):
                 print(c(user.name_display, 'red'), end='')
-                print(' / ' + update.body[:50].replace('\r\n', ' ').replace('\n', ' ') + '... / ', end='')
+                print(' / ' + update.body[:75-(len(user.name_display)+3)].replace('\r\n', ' ').replace('\n', ' ') + '... / ', end='')
                 print(c('%dL' % update.likes, 'yellow'))
         elif isinstance(data[0], schoolopy.Group):
-            pass
+            for group in data:
+                print(c(group.title, 'red'))
         elif isinstance(data[0], schoolopy.Section):
             pass
     else: # data is scalar object
@@ -62,16 +63,24 @@ def display(data):
             contents = [user.name_display, date(data.created)]
             for field, content in zip(fields, contents):
                 print(c(field + ':', 'red') + ' ' + content)
-            print()
-            print(data.body)
+            print('\n%s\n' % data.body)
             print(c('👍  %d Likes' % data.likes, 'yellow'))
         elif isinstance(data, schoolopy.Group):
-            pass
+            group = api.get_group(data.id)
+            print(group)
+            return
+            fields = ['By', 'Date']
+            contents = [user.name_display, date(data.created)]
+            for field, content in zip(fields, contents):
+                print(c(field + ':', 'red') + ' ' + content)
+            print('\n%s\n' % data.body)
+            print(c('👍  %d Likes' % data.likes, 'yellow'))
         elif isinstance(data, schoolopy.User):
             pass
 
-shown = api.get_feed()
-display(shown)
+many = api.get_feed()
+one = None
+display(many)
 
 while True:
     try:
@@ -80,18 +89,28 @@ while True:
         except KeyboardInterrupt:
             print()
             continue
+
         try:
             cmd = re.search(r'^(\w+)', rawcmd).group(0)
             content = rawcmd[len(cmd)+1:].split(' ')
         except AttributeError:
             cmd = None
             content = None
-        print('RECIEVED: %s, %s' % (cmd, content))
+        #print('RECIEVED: %s, %s' % (cmd, content))
 
         if cmd == 'view':
-            display(shown[int(content[0])])
+            try:
+                one = many[int(content[0])]
+            except IndexError:
+                one = many[0]
+            display(one)
+        elif cmd == 'list':
+            if content[0] == 'groups':
+                many = api.get_user_groups(cfg['me'])
+                display(many)
         elif cmd == 'home':
-            pass
+            many = api.get_feed()
+            display(many)
 
     except EOFError:
         print()
