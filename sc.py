@@ -49,7 +49,7 @@ def display(data):
             sys.stdout.write('\r')
             for user, update in zip(users, data):
                 print(c(user.name_display, 'red'), end='')
-                print(' / ' + update.body[:40].replace('\r\n', ' ').replace('\n', ' ') + '... / ', end='')
+                print(' / ' + update.body[:50].replace('\r\n', ' ').replace('\n', ' ') + '... / ', end='')
                 print(c('%dL' % update.likes, 'yellow'))
         elif isinstance(data[0], schoolopy.Group):
             pass
@@ -64,7 +64,7 @@ def display(data):
                 print(c(field + ':', 'red') + ' ' + content)
             print()
             print(data.body)
-            print(c(data.likes, 'yellow'))
+            print(c('👍  %d Likes' % data.likes, 'yellow'))
         elif isinstance(data, schoolopy.Group):
             pass
         elif isinstance(data, schoolopy.User):
@@ -75,7 +75,11 @@ display(shown)
 
 while True:
     try:
-        rawcmd = input('> ')
+        try:
+            rawcmd = input('> ')
+        except KeyboardInterrupt:
+            print()
+            continue
         try:
             cmd = re.search(r'^(\w+)', rawcmd).group(0)
             content = rawcmd[len(cmd)+1:].split(' ')
