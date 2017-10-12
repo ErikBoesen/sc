@@ -1,5 +1,9 @@
-# ``sc``
+``sc``
+======
+
 ``sc`` is a helpful tool for interacting with Schoology via the command line.
+
+.. image:: doc/screenshot.png
 
 ## Why?
 Because it's fun to do things in the terminal. Also, using ``sc`` is much lighter than loading an entire webpage.
