@@ -6,7 +6,7 @@ from termcolor import colored as c
 from os.path import expanduser
 import sys
 import re
-from datetime.datetime import timestamp
+from datetime import datetime
 
 CONFIG = expanduser('~') + '/.sc.yaml'
 
@@ -33,7 +33,7 @@ if not cfg:
 api = schoolopy.Schoology(cfg.get('key'), cfg.get('secret'))
 
 def date(timestamp):
-    return fromtimestamp(timestamp).strftime('%Y/%m/%d, %H:%M:%S')
+    return datetime.fromtimestamp(timestamp).strftime('%Y/%m/%d, %H:%M:%S')
 
 def display(data):
     if isinstance(data, list): # data is a list of objects to show
@@ -51,19 +51,23 @@ def display(data):
                 print(c(user.name_display, 'red'), end='')
                 print(' / ' + update.body[:40].replace('\r\n', ' ').replace('\n', ' ') + '... / ', end='')
                 print(c('%dL' % update.likes, 'yellow'))
-        elif isinstance(data[0], schoology.Group):
+        elif isinstance(data[0], schoolopy.Group):
             pass
-        elif isinstance(data[0], schoology.Section):
+        elif isinstance(data[0], schoolopy.Section):
             pass
     else: # data is scalar object
-        if isinstance(data, schoology.Update):
+        if isinstance(data, schoolopy.Update):
             user = api.get_user(data.uid)
-            print('By: %s' % user.name_display)
-            print('Date: %s' % date(user.created))
+            fields = ['By', 'Date']
+            contents = [user.name_display, date(data.created)]
+            for field, content in zip(fields, contents):
+                print(c(field + ':', 'red') + ' ' + content)
+            print()
             print(data.body)
-        elif isinstance(data, schoology.Group):
+            print(c(data.likes, 'yellow'))
+        elif isinstance(data, schoolopy.Group):
             pass
-        elif isinstance(data, schoology.User):
+        elif isinstance(data, schoolopy.User):
             pass
 
 shown = api.get_feed()
