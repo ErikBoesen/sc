@@ -26,17 +26,20 @@ if not cfg:
     cfg['key'] = input('API key: ')
     cfg['secret'] = getpass('API secret: ')
     # TODO: Get this automatically
-    cfg['me'] = input('User ID: ')
+    cfg['me'] = int(input('User ID: '))
+    cfg['limit'] = 10
     with open(CONFIG, 'w+') as f:
         yaml.dump(cfg, f)
 
 api = schoolopy.Schoology(cfg.get('key'), cfg.get('secret'))
+api.limit = cfg['limit']
+
 
 def date(timestamp):
     return datetime.fromtimestamp(timestamp).strftime('%Y/%m/%d, %H:%M:%S')
 
 def display(data):
-    if isinstance(data, list): # data is a list of objects to show
+    if isinstance(data, list):  # data is a list of objects to show
         if isinstance(data[0], schoolopy.Update):
             users = []
             # TODO: Switch to multi-get request once it's available
@@ -56,7 +59,7 @@ def display(data):
                 print(c(group.title, 'red'))
         elif isinstance(data[0], schoolopy.Section):
             pass
-    else: # data is scalar object
+    else:  # data is scalar object
         if isinstance(data, schoolopy.Update):
             user = api.get_user(data.uid)
             fields = ['By', 'Date']
@@ -76,7 +79,10 @@ def display(data):
             print('\n%s\n' % data.body)
             print(c('👍  %d Likes' % data.likes, 'yellow'))
         elif isinstance(data, schoolopy.User):
-            pass
+            fields = ['Name', 'Email', 'Graduation Year', 'Location', 'Language']
+            contents = ['%s (%s)' % (data.name_display, data.school_uid), data.primary_email, data.grad_year, data.tz_name, data.language]
+            for field, content in zip(fields, contents):
+                print(c(field + ':', 'red') + ' ' + content)
 
 many = api.get_feed()
 one = None
@@ -96,7 +102,7 @@ while True:
         except AttributeError:
             cmd = None
             content = None
-        #print('RECIEVED: %s, %s' % (cmd, content))
+        print('RECIEVED: %s, %s' % (cmd, content))
 
         if cmd == 'view':
             try:
@@ -111,6 +117,11 @@ while True:
         elif cmd == 'home':
             many = api.get_feed()
             display(many)
+        elif cmd == 'me':
+            one = api.get_me()
+            display(one)
+        elif cmd == 'req':
+            print(exec(content[0]))
 
     except EOFError:
         print()
