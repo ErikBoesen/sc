@@ -63,7 +63,9 @@ def display(data):
             for group in data:
                 print(c(group.title, cfg['accent']))
         elif isinstance(data[0], schoolopy.Section):
-            pass
+            for section in data:
+                # TODO: Print other data points
+                print(c(section.title, cfg['accent']))
     else:  # data is scalar object
         if isinstance(data, schoolopy.Update):
             user = api.get_user(data.uid)
@@ -88,6 +90,9 @@ def display(data):
             contents = ['%s (%s)' % (data.name_display, data.school_uid), data.primary_email, data.grad_year, data.tz_name, data.language]
             for field, content in zip(fields, contents):
                 print(c(field + ':', cfg['accent']) + ' ' + content)
+        elif isinstance(data, schoolopy.Section):
+            pass
+
 
 many = api.get_feed()
 one = None
@@ -118,6 +123,9 @@ while True:
         elif cmd == 'list':
             if content[0] == 'groups':
                 many = api.get_user_groups(cfg['me'])
+                display(many)
+            elif content[0] == 'courses':
+                many = api.get_user_sections(cfg['me'])
                 display(many)
         elif cmd == 'home':
             many = api.get_feed()
