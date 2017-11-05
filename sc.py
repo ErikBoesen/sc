@@ -36,7 +36,7 @@ if not cfg:
 if cfg['accent'] == 'random':
     cfg['accent'] = choice(['grey', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan'])  # White skipped
 
-api = schoolopy.Schoology(cfg.get('key'), cfg.get('secret'))
+api = schoolopy.Schoology(cfg['key'], cfg['secret'])
 api.limit = cfg['limit']
 
 
@@ -64,8 +64,7 @@ def display(data):
                 print(c(group.title, cfg['accent']))
         elif isinstance(data[0], schoolopy.Section):
             for section in data:
-                # TODO: Print other data points
-                print(c(section.title, cfg['accent']))
+                display(section)
     else:  # data is scalar object
         if isinstance(data, schoolopy.Update):
             user = api.get_user(data.uid)
@@ -91,7 +90,10 @@ def display(data):
             for field, content in zip(fields, contents):
                 print(c(field + ':', cfg['accent']) + ' ' + content)
         elif isinstance(data, schoolopy.Section):
-            pass
+            fields = ['Name', 'Section']
+            contents = [data.course_title, data.section_title]
+            for field, content in zip(fields, contents):
+                print(c(field + ':', cfg['accent']) + ' ' + content)
 
 
 many = api.get_feed()
