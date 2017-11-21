@@ -43,6 +43,10 @@ api.limit = cfg['limit']
 def date(timestamp):
     return datetime.fromtimestamp(timestamp).strftime('%Y/%m/%d, %H:%M:%S')
 
+def listprop(fields, contents):
+    for field, content in zip(fields, contents):
+        print(c(field + ':', cfg['accent']) + ' %s' % content)
+
 def display(data):
     if isinstance(data, list):  # data is a list of objects to show
         if isinstance(data[0], schoolopy.Update):
@@ -53,7 +57,6 @@ def display(data):
                 sys.stdout.write('\r%s %s/%s' % ('/-\\|'[i % 4], i, len(data)))
                 sys.stdout.flush()
                 users.append(api.get_user(update.uid))
-
             sys.stdout.write('\r')
             for user, update in zip(users, data):
                 print(c(user.name_display, cfg['accent']), end='')
@@ -61,39 +64,27 @@ def display(data):
                 print(c('%dL' % update.likes, 'yellow'))
         elif isinstance(data[0], schoolopy.Group):
             for group in data:
-                print(c(group.title, cfg['accent']))
+                print(c(group.title + (c('*', 'yellow') if group.admin else ''), cfg['accent']))
         elif isinstance(data[0], schoolopy.Section):
             for section in data:
                 display(section)
     else:  # data is scalar object
         if isinstance(data, schoolopy.Update):
             user = api.get_user(data.uid)
-            fields = ['By', 'Date']
-            contents = [user.name_display, date(data.created)]
-            for field, content in zip(fields, contents):
-                print(c(field + ':', cfg['accent']) + ' ' + content)
+            listprop(['By', 'Date'],
+                     [user.name_display, date(data.created)])
             print('\n%s\n' % data.body)
             print(c('👍  %d Likes' % data.likes, 'yellow'))
         elif isinstance(data, schoolopy.Group):
             group = api.get_group(data.id)
-            print(group)
-            return
-            fields = ['By', 'Date']
-            contents = [user.name_display, date(data.created)]
-            for field, content in zip(fields, contents):
-                print(c(field + ':', cfg['accent']) + ' ' + content)
-            print('\n%s\n' % data.body)
-            print(c('👍  %d Likes' % data.likes, 'yellow'))
+            listprop(['Title', 'Admin', 'Description', 'Category'],
+                     [group.title, group.admin == 1, group.description, group.category])
         elif isinstance(data, schoolopy.User):
-            fields = ['Name', 'Email', 'Graduation Year', 'Location', 'Language']
-            contents = ['%s (%s)' % (data.name_display, data.school_uid), data.primary_email, data.grad_year, data.tz_name, data.language]
-            for field, content in zip(fields, contents):
-                print(c(field + ':', cfg['accent']) + ' ' + content)
+            listprop(['Name', 'Email', 'Graduation Year', 'Location', 'Language'],
+                     ['%s (%s)' % (data.name_display, data.school_uid), data.primary_email, data.grad_year, data.tz_name, data.language])
         elif isinstance(data, schoolopy.Section):
-            fields = ['Name', 'Section']
-            contents = [data.course_title, data.section_title]
-            for field, content in zip(fields, contents):
-                print(c(field + ':', cfg['accent']) + ' ' + content)
+            listprop(['Name', 'Section'],
+                     [data.course_title, data.section_title])
 
 
 many = api.get_feed()
@@ -140,6 +131,10 @@ while True:
             display(one)
         elif cmd == 'req':
             exec('print(api.%s)' % ''.join(content))
+        elif cmd == '':
+            pass
+        else:
+            print('Unrecognized command.')
 
     except EOFError:
         print()
