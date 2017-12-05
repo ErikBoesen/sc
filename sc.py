@@ -36,7 +36,7 @@ if not cfg:
 if cfg['accent'] == 'random':
     cfg['accent'] = choice(['grey', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan'])  # White skipped
 
-api = schoolopy.Schoology(cfg['key'], cfg['secret'])
+api = schoolopy.Schoology(schoolopy.Auth(cfg['key'], cfg['secret']))
 api.limit = cfg['limit']
 
 
