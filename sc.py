@@ -72,6 +72,14 @@ def display(data):
         elif isinstance(data[0], schoolopy.Section):
             for section in data:
                 display(section)
+        elif isinstance(data[0], schoolopy.MessageThread):
+            users = load_users(data, key='author_id')
+            for user, thread in zip(users, data):
+                print(c(user.name_display, cfg['accent']), end='')
+                print(' / ' + thread.subject)
+                if thread.message_status == 'unread':
+                    print(c('*', yellow))
+
     else:  # data is scalar object
         if isinstance(data, schoolopy.Update):
             user = api.get_user(data.uid)
@@ -123,6 +131,9 @@ while True:
                 display(many)
             elif content[0] == 'courses':
                 many = api.get_user_sections(cfg['me'])
+                display(many)
+            elif content[0] == 'messages':
+                many = api.get_inbox_messages()
                 display(many)
         elif cmd == 'home':
             many = api.get_feed()
