@@ -47,17 +47,21 @@ def listprop(fields, contents):
     for field, content in zip(fields, contents):
         print(c(field + ':', cfg['accent']) + ' %s' % content)
 
+def load_users(data, key='uid'):
+    users = []
+    # TODO: Switch to multi-get request once it's available
+    for i, datum in enumerate(data):
+        sys.stdout.write('\r%s %s/%s' % ('/-\\|'[i % 4], i, len(data)))
+        sys.stdout.flush()
+        users.append(api.get_user(datum[key]))
+    sys.stdout.write('\r')
+    return users
+
+
 def display(data):
     if isinstance(data, list):  # data is a list of objects to show
         if isinstance(data[0], schoolopy.Update):
-            users = []
-            # TODO: Switch to multi-get request once it's available
-            # TODO: Generalize loading system
-            for i, update in enumerate(data):
-                sys.stdout.write('\r%s %s/%s' % ('/-\\|'[i % 4], i, len(data)))
-                sys.stdout.flush()
-                users.append(api.get_user(update.uid))
-            sys.stdout.write('\r')
+            users = load_users(data)
             for user, update in zip(users, data):
                 print(c(user.name_display, cfg['accent']), end='')
                 print(' / ' + update.body[:75-(len(user.name_display)+3)].replace('\r\n', ' ').replace('\n', ' ') + '... / ', end='')
