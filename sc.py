@@ -79,7 +79,6 @@ def display(data):
                 print(' / ' + thread.subject)
                 if thread.message_status == 'unread':
                     print(c('*', yellow))
-
     else:  # data is scalar object
         if isinstance(data, schoolopy.Update):
             user = api.get_user(data.uid)
@@ -97,6 +96,15 @@ def display(data):
         elif isinstance(data, schoolopy.Section):
             listprop(['Name', 'Section'],
                      [data.course_title, data.section_title])
+        elif isinstance(data, schoolopy.MessageThread):
+            messages = api.get_message(data.id)
+            users = {message.author_id: api.get_user(message.author_id) for message in messages}
+            author = api.get_user(data.author_id)
+            listprop(['Subject', 'Author', 'Time', 'Status'],
+                     [data.subject, author.name_display, date(data.last_updated), data.message_status])
+            print()
+            for message in messages:
+                print(('' if message.message_status == 'read' else c('* ', 'yellow')) + c(users[message.author_id].name_display, cfg['accent']) + ' / ' + c(date(message.last_updated), cfg['accent']) + ' / ' + message.message)
 
 
 many = api.get_feed()
