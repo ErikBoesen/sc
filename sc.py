@@ -63,7 +63,7 @@ def display(data):
         if isinstance(data[0], schoolopy.Update):
             users = load_users(data)
             for user, update in zip(users, data):
-                print(c(user.name_display, cfg['accent']), end='')
+                print(c(user.name_display if user.name_display else '%s %s' % (user.name_first, user.name_last), cfg['accent']), end='')
                 print(' / ' + update.body[:75-(len(user.name_display)+3)].replace('\r\n', ' ').replace('\n', ' ') + '... / ', end='')
                 print(c('%dL' % update.likes, 'yellow'))
         elif isinstance(data[0], schoolopy.Group):
