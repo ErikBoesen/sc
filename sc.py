@@ -65,17 +65,18 @@ def listprop(fields, contents):
 
 def load_users(data, key='uid'):
     users = []
+    print(cache['users'].keys())
     # TODO: Switch to multi-get request once it's available from API
     for i, datum in enumerate(data):
-        print('\r%s %s/%s' % ('/-\\|'[i % 4], i, len(data)), end='', flush=True)
-        if cache['users'].get(datum[key]):
+        #print('', datum[key], cache['users'].get(str(datum[key])))
+        if cache['users'].get(datum[str(key)]):
             # TODO: Caching doesn't work at all.
-            #print('user %d in cache' % datum[key])
-            user = cache['users'][datum[key]]
+            print('user %s %d in cache' % (type(datum[key]), datum[key]))
+            user = cache['users'][datum[str(key)]]
         else:
-            #print('user %d needs to be fetched' % datum[key])
-            user = api.get_user(datum[key])
-            cache['users'][datum[key]] = user
+            print('user %s %d needs to be fetched' % (type(datum[key]), datum[key]))
+            user = api.get_user(datum[str(key)])
+            cache['users'][datum[str(key)]] = user
         users.append(user)
     print('\r', end='')
     return users
