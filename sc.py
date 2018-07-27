@@ -5,7 +5,6 @@ import yaml
 from termcolor import colored as c
 from os.path import expanduser
 import sys
-import re
 from datetime import datetime
 
 CONFIG_PATH = expanduser('~') + '/.sc.yaml'
@@ -38,7 +37,7 @@ api.limit = cfg['limit']
 
 
 def date(timestamp):
-    return datetime.fromtimestamp(timestamp).strftime('%Y/%m/%d, %H:%M:%S')
+    return datetime.fromtimestamp(timestamp).strftime('%Y/%m/%d %H:%M:%S')
 
 def listprop(fields, contents):
     for field, content in zip(fields, contents):
@@ -111,18 +110,12 @@ display(many)
 while True:
     try:
         try:
-            rawcmd = input('> ')
+            args = input('> ').split()
         except KeyboardInterrupt:
             print()
             continue
-
-        try:
-            cmd = re.search(r'^(\w+)', rawcmd).group(0)
-            content = rawcmd[len(cmd)+1:].split(' ')
-        except AttributeError:
-            cmd = None
-            content = None
-        #print('RECIEVED: %s, %s' % (cmd, content))
+        verb = args.pop(0)
+        #print('RECIEVED: %s, %s' % (verb, args))
 
         if cmd == 'view':
             try:
