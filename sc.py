@@ -36,8 +36,7 @@ if os.path.isfile(CONFIG_PATH):
         cfg = json.load(f)
 else:
     cfg = {
-        # TODO: Get this automatically
-        'me': int(input('User ID: ')),
+        'me': api.get_me()['uid'],
         'limit': 10,
         'accent': 'cyan',
     }
