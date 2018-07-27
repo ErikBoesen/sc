@@ -9,13 +9,13 @@ import re
 from datetime import datetime
 from random import choice
 
-CONFIG = expanduser('~') + '/.sc.yaml'
+CONFIG_PATH = expanduser('~') + '/.sc.yaml'
 
 cfg = {}
 # TODO: Handle config which exists, but lacks necessary fields
 # TODO: Make this more efficient
 try:
-    with open(CONFIG, 'r+') as f:
+    with open(CONFIG_PATH, 'r+') as f:
         cfg = yaml.load(f.read())
 except FileNotFoundError:
     cfg = {}
@@ -30,7 +30,7 @@ if not cfg:
     cfg['me'] = int(input('User ID: '))
     cfg['limit'] = 10
     cfg['accent'] = 'cyan'
-    with open(CONFIG, 'w+') as f:
+    with open(CONFIG_PATH, 'w+') as f:
         yaml.dump(cfg, f)
 
 if cfg['accent'] == 'random':
