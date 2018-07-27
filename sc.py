@@ -33,18 +33,18 @@ api = schoolopy.Schoology(schoolopy.Auth(tokens['key'], tokens['secret']))
 # Load or generate sc configuration
 if os.path.isfile(CONFIG_PATH):
     with open(CONFIG_PATH, 'r') as f:
-        cfg = json.load(f)
+        config = json.load(f)
 else:
-    cfg = {
+    config = {
         'me': api.get_me()['uid'],
         'limit': 10,
         'accent': 'cyan',
     }
     with open(CONFIG_PATH, 'w') as f:
-        json.dump(cfg, f)
+        json.dump(config, f)
 
 # Set API properties retrieved from config
-api.limit = cfg['limit']
+api.limit = config['limit']
 
 # Load or generate data caches
 if os.path.isfile(CACHES_PATH):
@@ -61,7 +61,7 @@ def date(timestamp):
 
 def listprop(fields, contents):
     for field, content in zip(fields, contents):
-        print(c(field + ':', cfg['accent']) + ' %s' % content)
+        print(c(field + ':', config['accent']) + ' %s' % content)
 
 def load_users(data, key='uid'):
     users = []
@@ -87,19 +87,19 @@ def display(data):
         if isinstance(data[0], schoolopy.Update):
             users = load_users(data)
             for user, update in zip(users, data):
-                print(c(user.name_display if user.name_display else '%s %s' % (user.name_first, user.name_last), cfg['accent']), end='')
+                print(c(user.name_display if user.name_display else '%s %s' % (user.name_first, user.name_last), config['accent']), end='')
                 print(' / ' + update.body[:75-(len(user.name_display)+3)].replace('\r\n', ' ').replace('\n', ' ') + '... / ', end='')
                 print(c('%dL' % update.likes, 'yellow'))
         elif isinstance(data[0], schoolopy.Group):
             for group in data:
-                print(c(group.title + (c('*', 'yellow') if group.admin else ''), cfg['accent']))
+                print(c(group.title + (c('*', 'yellow') if group.admin else ''), config['accent']))
         elif isinstance(data[0], schoolopy.Section):
             for section in data:
                 display(section)
         elif isinstance(data[0], schoolopy.MessageThread):
             users = load_users(data, key='author_id')
             for user, thread in zip(users, data):
-                print(c(user.name_display, cfg['accent']), end='')
+                print(c(user.name_display, config['accent']), end='')
                 print(' / ' + thread.subject)
                 if thread.message_status == 'unread':
                     print(c('*', yellow))
@@ -128,7 +128,7 @@ def display(data):
                      [data.subject, author.name_display, date(data.last_updated), data.message_status])
             print()
             for message in messages:
-                print(('' if message.message_status == 'read' else c('* ', 'yellow')) + c(users[message.author_id].name_display, cfg['accent']) + ' / ' + c(date(message.last_updated), cfg['accent']) + ' / ' + message.message)
+                print(('' if message.message_status == 'read' else c('* ', 'yellow')) + c(users[message.author_id].name_display, config['accent']) + ' / ' + c(date(message.last_updated), config['accent']) + ' / ' + message.message)
 
 
 many = api.get_feed()
@@ -153,10 +153,10 @@ while True:
             display(one)
         elif verb == 'list':
             if args[0] == 'groups':
-                many = api.get_user_groups(cfg['me'])
+                many = api.get_user_groups(config['me'])
                 display(many)
             elif args[0] == 'courses':
-                many = api.get_user_sections(cfg['me'])
+                many = api.get_user_sections(config['me'])
                 display(many)
             elif args[0] == 'messages':
                 many = api.get_inbox_messages()
