@@ -127,13 +127,13 @@ while True:
                 one = many[0]
             display(one)
         elif verb == 'list':
-            if content[0] == 'groups':
+            if args[0] == 'groups':
                 many = api.get_user_groups(cfg['me'])
                 display(many)
-            elif content[0] == 'courses':
+            elif args[0] == 'courses':
                 many = api.get_user_sections(cfg['me'])
                 display(many)
-            elif content[0] == 'messages':
+            elif args[0] == 'messages':
                 many = api.get_inbox_messages()
                 display(many)
         elif verb == 'home':
