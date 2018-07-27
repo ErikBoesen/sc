@@ -7,8 +7,22 @@ import os
 import sys
 from datetime import datetime
 
+TOKENS_PATH = os.path.expanduser('~') + '/.sc.tokens.json'
 CONFIG_PATH = os.path.expanduser('~') + '/.sc.config.json'
-CACHE_PATH  = os.path.expanduser('~') + '/.sc.data.json'
+CACHES_PATH = os.path.expanduser('~') + '/.sc.caches.json'
+
+if os.path.isfile(TOKENS_PATH):
+    with open(TOKENS_PATH, 'r') as f:
+        tokens = json.load(f)
+else:
+    print(c('Logging in.', 'green'))
+    print(c('Obtain tokens at [your institution\'s Schoology root]/api.', 'green'))
+    tokens = {
+        'key': input('API key: '),
+        'secret': getpass('API secret: '),
+    }
+    with open(TOKENS_PATH, 'w') as f:
+        json.dump(tokens, f)
 
 if os.path.isfile(CONFIG_PATH):
     with open(CONFIG_PATH, 'r') as f:
@@ -16,7 +30,6 @@ if os.path.isfile(CONFIG_PATH):
 else:
     from getpass import getpass
 
-    print(c('Generating configuration for first run.', 'green'))
     cfg = {
         'key': input('API key: '),
         'secret': getpass('API secret: '),
@@ -31,8 +44,8 @@ else:
 cache = {
     'users': {},
 }
-if os.path.isfile(CACHE_PATH):
-    with open(CACHE_PATH, 'r') as f:
+if os.path.isfile(CACHES_PATH):
+    with open(CACHES_PATH, 'r') as f:
         cache = json.load(f)
 
 api = schoolopy.Schoology(schoolopy.Auth(cfg['key'], cfg['secret']))
@@ -163,5 +176,5 @@ while True:
         print()
         break
 
-with open(CACHE_PATH, 'w') as f:
+with open(CACHES_PATH, 'w') as f:
     json.dump(cache, f)
