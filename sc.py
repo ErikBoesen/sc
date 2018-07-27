@@ -7,9 +7,10 @@ import os
 import sys
 from datetime import datetime
 
-TOKENS_PATH = os.path.expanduser('~') + '/.sc.tokens.json'
-CONFIG_PATH = os.path.expanduser('~') + '/.sc.config.json'
-CACHES_PATH = os.path.expanduser('~') + '/.sc.caches.json'
+HOME = os.getenv('HOME')
+TOKENS_PATH = HOME + '/.sc.tokens.json'
+CONFIG_PATH = HOME + '/.sc.config.json'
+CACHES_PATH = HOME + '/.sc.caches.json'
 
 # Load or generate API tokens
 if os.path.isfile(TOKENS_PATH):
