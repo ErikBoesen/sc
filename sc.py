@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
 
 import schoolopy
-import yaml
 import json
 from termcolor import colored as c
 import os
 import sys
 from datetime import datetime
 
-CONFIG_PATH = os.path.expanduser('~') + '/.sc.yaml'
-CACHE_PATH  = os.path.expanduser('~') + '/.scdata.json'
+CONFIG_PATH = os.path.expanduser('~') + '/.sc.config.json'
+CACHE_PATH  = os.path.expanduser('~') + '/.sc.data.json'
 
 if os.path.isfile(CONFIG_PATH):
     with open(CONFIG_PATH, 'r') as f:
-        cfg = yaml.load(f.read())
+        cfg = json.load(f)
 else:
     from getpass import getpass
 
@@ -27,7 +26,7 @@ else:
         'accent': 'cyan',
     }
     with open(CONFIG_PATH, 'w') as f:
-        yaml.dump(cfg, f)
+        json.dump(cfg, f)
 
 cache = {
     'users': {},
@@ -53,7 +52,7 @@ def load_users(data, key='uid'):
         sys.stdout.write('\r%s %s/%s' % ('/-\\|'[i % 4], i, len(data)))
         sys.stdout.flush()
         if cache['users'].get(datum[key]):
-            # TODO: Cacheing doesn't work at all.
+            # TODO: Caching doesn't work at all.
             #print('user %d in cache' % datum[key])
             user = cache['users'][datum[key]]
         else:
