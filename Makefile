@@ -18,9 +18,10 @@ MANPAGE=sc.7
 all:
 	@echo did nothing. try targets: install, or uninstall.
 
-install:
+prerequisites:
 	pip3 install -r requirements.txt
 
+install: prerequisites
 	test -d $(INSTDIR) || mkdir -p $(INSTDIR)
 	test -d $(INSTBIN) || mkdir -p $(INSTBIN)
 	test -d $(INSTMAN) || mkdir -p $(INSTMAN)
@@ -32,7 +33,7 @@ uninstall:
 	rm -f $(INSTBIN)/$(SCRIPT)
 	rm -f $(INSTMAN)/$(MANPAGE)
 
-link:
+link: prerequisites
 	ln -sf $(realpath $(SCRIPT)) $(INSTBIN)/sc
 
 .PHONY: all install uninstall
