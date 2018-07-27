@@ -117,13 +117,13 @@ while True:
         verb = args.pop(0)
         #print('RECIEVED: %s, %s' % (verb, args))
 
-        if cmd == 'view':
+        if verb == 'view':
             try:
                 one = many[int(content[0])]
             except IndexError:
                 one = many[0]
             display(one)
-        elif cmd == 'list':
+        elif verb == 'list':
             if content[0] == 'groups':
                 many = api.get_user_groups(cfg['me'])
                 display(many)
@@ -133,18 +133,18 @@ while True:
             elif content[0] == 'messages':
                 many = api.get_inbox_messages()
                 display(many)
-        elif cmd == 'home':
+        elif verb == 'home':
             many = api.get_feed()
             display(many)
-        elif cmd == 'me':
+        elif verb == 'me':
             one = api.get_me()
             display(one)
-        elif cmd == 'user':
+        elif verb == 'user':
             one = api.get_user(content[0])
             display(one)
-        elif cmd == 'req':
+        elif verb == 'req':
             exec('print(api.%s)' % ''.join(content))
-        elif cmd == '':
+        elif verb == '':
             pass
         else:
             print('Unrecognized command.')
