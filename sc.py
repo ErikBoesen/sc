@@ -23,13 +23,14 @@ if not cfg:
     from getpass import getpass
 
     print(c('Generating configuration for first run.', 'green'))
-    cfg = {}
-    cfg['key'] = input('API key: ')
-    cfg['secret'] = getpass('API secret: ')
-    # TODO: Get this automatically
-    cfg['me'] = int(input('User ID: '))
-    cfg['limit'] = 10
-    cfg['accent'] = 'cyan'
+    cfg = {
+        'key': input('API key: '),
+        'secret': getpass('API secret: '),
+        # TODO: Get this automatically
+        'me': int(input('User ID: ')),
+        'limit': 10,
+        'accent': 'cyan',
+    }
     with open(CONFIG_PATH, 'w+') as f:
         yaml.dump(cfg, f)
 
