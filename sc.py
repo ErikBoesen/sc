@@ -7,7 +7,6 @@ from os.path import expanduser
 import sys
 import re
 from datetime import datetime
-from random import choice
 
 CONFIG_PATH = expanduser('~') + '/.sc.yaml'
 
@@ -31,11 +30,8 @@ if not cfg:
         'limit': 10,
         'accent': 'cyan',
     }
-    with open(CONFIG_PATH, 'w+') as f:
+    with open(CONFIG_PATH, 'w') as f:
         yaml.dump(cfg, f)
-
-if cfg['accent'] == 'random':
-    cfg['accent'] = choice(['grey', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan'])  # White skipped
 
 api = schoolopy.Schoology(schoolopy.Auth(cfg['key'], cfg['secret']))
 api.limit = cfg['limit']
