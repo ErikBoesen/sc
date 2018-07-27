@@ -9,7 +9,7 @@ import sys
 from datetime import datetime
 
 CONFIG_PATH = os.path.expanduser('~') + '/.sc.yaml'
-DATA_PATH   = os.path.expanduser('~') + '/.scdata.json'
+CACHE_PATH  = os.path.expanduser('~') + '/.scdata.json'
 
 if os.path.isfile(CONFIG_PATH):
     with open(CONFIG_PATH, 'r') as f:
@@ -32,8 +32,8 @@ else:
 cache = {
     'users': {},
 }
-if os.path.isfile(DATA_PATH):
-    with open(DATA_PATH, 'r') as f:
+if os.path.isfile(CACHE_PATH):
+    with open(CACHE_PATH, 'r') as f:
         cache = json.load(f)
 
 api = schoolopy.Schoology(schoolopy.Auth(cfg['key'], cfg['secret']))
@@ -48,11 +48,19 @@ def listprop(fields, contents):
 
 def load_users(data, key='uid'):
     users = []
-    # TODO: Switch to multi-get request once it's available
+    # TODO: Switch to multi-get request once it's available from API
     for i, datum in enumerate(data):
         sys.stdout.write('\r%s %s/%s' % ('/-\\|'[i % 4], i, len(data)))
         sys.stdout.flush()
-        users.append(api.get_user(datum[key]))
+        if cache['users'].get(datum[key]):
+            # TODO: Cacheing doesn't work at all.
+            #print('user %d in cache' % datum[key])
+            user = cache['users'][datum[key]]
+        else:
+            #print('user %d needs to be fetched' % datum[key])
+            user = api.get_user(datum[key])
+            cache['users'][datum[key]] = user
+        users.append(user)
     sys.stdout.write('\r')
     return users
 
@@ -122,7 +130,7 @@ while True:
 
         if verb == 'view':
             try:
-                one = many[int(content[0])]
+                one = many[int(args[0])]
             except IndexError:
                 one = many[0]
             display(one)
@@ -146,7 +154,7 @@ while True:
             one = api.get_user(content[0])
             display(one)
         elif verb == 'req':
-            exec('print(api.%s)' % ''.join(content))
+            exec('print(api.%s)' % ''.join(args))
         elif verb == '':
             pass
         else:
@@ -156,7 +164,5 @@ while True:
         print()
         break
 
-
-# TODO: This won't run if the user exits with Command+D
-with open(DATA_PATH, 'w') as f:
+with open(CACHE_PATH, 'w') as f:
     json.dump(cache, f)
