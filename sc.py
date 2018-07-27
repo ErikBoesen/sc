@@ -2,22 +2,19 @@
 
 import schoolopy
 import yaml
+import json
 from termcolor import colored as c
-from os.path import expanduser
+import os
 import sys
 from datetime import datetime
 
-CONFIG_PATH = expanduser('~') + '/.sc.yaml'
+CONFIG_PATH = os.path.expanduser('~') + '/.sc.yaml'
+DATA_PATH   = os.path.expanduser('~') + '/.scdata.json'
 
-cfg = {}
-# TODO: Handle config which exists, but lacks necessary fields
-# TODO: Make this more efficient
-try:
-    with open(CONFIG_PATH, 'r+') as f:
+if os.path.isfile(CONFIG_PATH):
+    with open(CONFIG_PATH, 'r') as f:
         cfg = yaml.load(f.read())
-except FileNotFoundError:
-    cfg = {}
-if not cfg:
+else:
     from getpass import getpass
 
     print(c('Generating configuration for first run.', 'green'))
@@ -32,9 +29,15 @@ if not cfg:
     with open(CONFIG_PATH, 'w') as f:
         yaml.dump(cfg, f)
 
+cache = {
+    'users': {},
+}
+if os.path.isfile(DATA_PATH):
+    with open(DATA_PATH, 'r') as f:
+        cache = json.load(f)
+
 api = schoolopy.Schoology(schoolopy.Auth(cfg['key'], cfg['secret']))
 api.limit = cfg['limit']
-
 
 def date(timestamp):
     return datetime.fromtimestamp(timestamp).strftime('%Y/%m/%d %H:%M:%S')
@@ -151,4 +154,9 @@ while True:
 
     except EOFError:
         print()
-        sys.exit(0)
+        break
+
+
+# TODO: This won't run if the user exits with Command+D
+with open(DATA_PATH, 'w') as f:
+    json.dump(cache, f)
