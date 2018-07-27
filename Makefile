@@ -32,4 +32,7 @@ uninstall:
 	rm -f $(INSTBIN)/$(SCRIPT)
 	rm -f $(INSTMAN)/$(MANPAGE)
 
+link:
+	ln -sf $(realpath $(SCRIPT)) $(INSTBIN)/sc
+
 .PHONY: all install uninstall
