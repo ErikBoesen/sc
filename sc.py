@@ -42,7 +42,7 @@ else:
         'accent': 'cyan',
     }
     with open(CONFIG_PATH, 'w') as f:
-        json.dump(config, f)
+        json.dump(config, f, indent=4)
 
 # Set API properties retrieved from config
 api.limit = config['limit']
