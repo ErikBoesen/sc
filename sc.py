@@ -11,10 +11,13 @@ TOKENS_PATH = os.path.expanduser('~') + '/.sc.tokens.json'
 CONFIG_PATH = os.path.expanduser('~') + '/.sc.config.json'
 CACHES_PATH = os.path.expanduser('~') + '/.sc.caches.json'
 
+# Load or generate API tokens
 if os.path.isfile(TOKENS_PATH):
     with open(TOKENS_PATH, 'r') as f:
         tokens = json.load(f)
 else:
+    from getpass import getpass
+
     print(c('Logging in.', 'green'))
     print(c('Obtain tokens at [your institution\'s Schoology root]/api.', 'green'))
     tokens = {
@@ -24,15 +27,15 @@ else:
     with open(TOKENS_PATH, 'w') as f:
         json.dump(tokens, f)
 
+# API Initialization
+api = schoolopy.Schoology(schoolopy.Auth(tokens['key'], tokens['secret']))
+
+# Load or generate sc configuration
 if os.path.isfile(CONFIG_PATH):
     with open(CONFIG_PATH, 'r') as f:
         cfg = json.load(f)
 else:
-    from getpass import getpass
-
     cfg = {
-        'key': input('API key: '),
-        'secret': getpass('API secret: '),
         # TODO: Get this automatically
         'me': int(input('User ID: ')),
         'limit': 10,
@@ -41,15 +44,18 @@ else:
     with open(CONFIG_PATH, 'w') as f:
         json.dump(cfg, f)
 
-cache = {
-    'users': {},
-}
+# Set API properties retrieved from config
+api.limit = cfg['limit']
+
+# Load or generate data caches
 if os.path.isfile(CACHES_PATH):
     with open(CACHES_PATH, 'r') as f:
         cache = json.load(f)
-
-api = schoolopy.Schoology(schoolopy.Auth(cfg['key'], cfg['secret']))
-api.limit = cfg['limit']
+else:
+    cache = {
+        'users': {},
+    }
+    # Write at end: changes are made throughout.
 
 def date(timestamp):
     return datetime.fromtimestamp(timestamp).strftime('%Y/%m/%d %H:%M:%S')
@@ -176,5 +182,6 @@ while True:
         print()
         break
 
+# Write caches to file
 with open(CACHES_PATH, 'w') as f:
     json.dump(cache, f)
