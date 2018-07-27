@@ -4,7 +4,6 @@ import schoolopy
 import json
 from termcolor import colored as c
 import os
-import sys
 from datetime import datetime
 
 HOME = os.getenv('HOME')
@@ -68,8 +67,7 @@ def load_users(data, key='uid'):
     users = []
     # TODO: Switch to multi-get request once it's available from API
     for i, datum in enumerate(data):
-        sys.stdout.write('\r%s %s/%s' % ('/-\\|'[i % 4], i, len(data)))
-        sys.stdout.flush()
+        print('\r%s %s/%s' % ('/-\\|'[i % 4], i, len(data)), end='', flush=True)
         if cache['users'].get(datum[key]):
             # TODO: Caching doesn't work at all.
             #print('user %d in cache' % datum[key])
@@ -79,7 +77,7 @@ def load_users(data, key='uid'):
             user = api.get_user(datum[key])
             cache['users'][datum[key]] = user
         users.append(user)
-    sys.stdout.write('\r')
+    print('\r', end='')
     return users
 
 
