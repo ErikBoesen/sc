@@ -69,16 +69,15 @@ def load_users(data, key='uid'):
     # TODO: Switch to multi-get request once it's available from API
     for i, datum in enumerate(data):
         #print('', datum[key], cache['users'].get(str(datum[key])))
-        if cache['users'].get(datum[str(key)]):
+        if cache['users'].get(str(datum[str(key)])):
             # TODO: Caching doesn't work at all.
-            print('user %s %d in cache' % (type(datum[key]), datum[key]))
-            user = cache['users'][datum[str(key)]]
+            user = cache['users'][str(datum[str(key)])]
         else:
             print('user %s %d needs to be fetched' % (type(datum[key]), datum[key]))
-            user = api.get_user(datum[str(key)])
-            cache['users'][datum[str(key)]] = user
+            print(cache['users'][str(datum[key])])
+            user = api.get_user(str(datum[str(key)]))
+            cache['users'][str(datum[str(key)])] = user
         users.append(user)
-    print('\r', end='')
     return users
 
 
@@ -130,7 +129,7 @@ def display(data):
             for message in messages:
                 print(('' if message.message_status == 'read' else c('* ', 'yellow')) + c(users[message.author_id].name_display, config['accent']) + ' / ' + c(date(message.last_updated), config['accent']) + ' / ' + message.message)
 
-
+# Interactive mode. Unsupported.
 many = api.get_feed()
 one = None
 display(many)
