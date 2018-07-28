@@ -17,6 +17,7 @@ if os.path.isfile(TOKENS_PATH):
         tokens = json.load(f)
 else:
     from getpass import getpass
+    import stat
 
     print(c('Logging in.', 'green'))
     print(c('Obtain tokens at [your institution\'s Schoology root]/api.', 'green'))
@@ -26,6 +27,14 @@ else:
     }
     with open(TOKENS_PATH, 'w') as f:
         json.dump(tokens, f)
+    # Prevent others from accessing token file.
+    # Equivalent to `chmod 600`.
+    os.chmod(CONFIG_PATH, stat.S_IRUSR | stat.S_IRUSR)
+
+# Warn if group or public can read config and the private details therein.
+if os.stat(CONFIG_PATH).st_mode & (stat.S_IRGRP | stat.S_IROTH):
+    # TODO: Print to stderr
+    print('Warning: config file may be accessible by other users.')
 
 # API Initialization
 api = schoolopy.Schoology(schoolopy.Auth(tokens['key'], tokens['secret']))
