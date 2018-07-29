@@ -29,10 +29,10 @@ else:
         json.dump(tokens, f)
     # Prevent others from accessing token file.
     # Equivalent to `chmod 600`.
-    os.chmod(CONFIG_PATH, stat.S_IRUSR | stat.S_IRUSR)
+    os.chmod(TOKENS_PATH, stat.S_IRUSR | stat.S_IRUSR)
 
 # Warn if group or public can read config and the private details therein.
-if os.stat(CONFIG_PATH).st_mode & (stat.S_IRGRP | stat.S_IROTH):
+if os.stat(TOKENS_PATH).st_mode & (stat.S_IRGRP | stat.S_IROTH):
     # TODO: Print to stderr
     print('Warning: config file may be accessible by other users.')
 
